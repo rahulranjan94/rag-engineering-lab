@@ -288,12 +288,14 @@ while ($true) {
         $message = @"
 GitHub changes downloaded successfully!
 
-Device: $device
-
-GitHub repository:
+From GitHub repository:
 $repository
 
+To Device: $device
+
 Branch: $branch
+
+Op
 
 Commits downloaded: $behindCount
 
