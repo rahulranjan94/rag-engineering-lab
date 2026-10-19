@@ -20,7 +20,7 @@ $ErrorActionPreference = "Stop"
 # -------------------- Configuration --------------------------
 
 $branch = "master"
-$device = "Laptop1:Bengaluru_system"
+$device = "Laptop1:Rahul@Bengaluru_system"
 $repository = "rahulranjan94/rag-engineering-lab"
 $remote = "origin"
 $intervalSeconds = 120
