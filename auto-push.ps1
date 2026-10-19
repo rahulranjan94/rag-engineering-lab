@@ -86,9 +86,9 @@ while ($true) {
                 $message = @"
 Your code has been pushed successfully!
 
-Device: Laptop1:Rahul@Bengaluru_system
+From Device: Laptop1:Rahul@Bengaluru_system
 
-GitHub Repository:
+To GitHub Repository:
 rahulranjan94/rag-engineering-lab
 
 Branch: master
