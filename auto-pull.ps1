@@ -295,7 +295,7 @@ To Device: $device
 
 Branch: $branch
 
-Op
+Operation: PULL (GitHub Repository: rahulranjan94/rag-engineering-lab to Laptop1: Rahul@Bengaluru_system)
 
 Commits downloaded: $behindCount
 
