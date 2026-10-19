@@ -208,6 +208,8 @@ rahulranjan94/rag-engineering-lab
 
 Branch: $branch
 
+Operation: PUSH (Laptop1: Rahul@Bengaluru_system to GitHub Repository: rahulranjan94/rag-engineering-lab)
+
 Time: $successTime
 "@
 
