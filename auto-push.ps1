@@ -275,6 +275,8 @@ while ($true) {
                 "",
                 "Operation: PUSH (Local Repository -> GitHub)",
                 "",
+                "Detailed Operation: PUSH ($device to GitHub Repository: $expectedRepository)",
+                "",
                 "Time:",
                 $successTime,
                 "",
