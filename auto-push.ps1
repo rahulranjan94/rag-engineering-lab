@@ -280,8 +280,9 @@ $branch
 Changes:
 New, modified, renamed, or deleted files
 
-Operation:
-Local Repository -> GitHub
+Operation:PUSH(Local Repository -> GitHub)
+Detailed Operation: PUSH(Local Repository=>Laptop1: Rahul@Bengaluru_system to GitHub Repository=> rahulranjan94/rag-engineering-lab)
+
 
 Time:
 $successTime
