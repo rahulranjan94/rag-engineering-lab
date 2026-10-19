@@ -11,7 +11,7 @@ $repositoryPath = $PSScriptRoot
 $branch = "master"
 $remote = "origin"
 $expectedRepository = "rahulranjan94/rag-engineering-lab"
-$device = "Laptop1:Bengaluru_system"
+$device = "Laptop1:Rahul@Bengaluru_system"
 $intervalSeconds = 120
 
 # -------------------- Windows notifications ------------------
@@ -200,10 +200,11 @@ while ($true) {
             $message = @"
 Your code has been pushed successfully!
 
-From Device: $device
+From Device:
+Laptop1:Rahul@Bengaluru_system
 
 To GitHub Repository:
-$expectedRepository
+rahulranjan94/rag-engineering-lab
 
 Branch: $branch
 
