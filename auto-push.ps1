@@ -1,113 +1,234 @@
 
-# RAG Engineering Lab - GitHub Auto Sync
-# Checks for changes every 2 minutes
-# Shows a Windows dialog after a successful push with new changes
+# ============================================================
+# RAG Engineering Lab - GitHub Auto-Push
+# Checks for local changes every 2 minutes.
+# Commits and pushes changes to GitHub.
+# ============================================================
 
-$ErrorActionPreference = "Continue"
-Set-Location $PSScriptRoot
+$ErrorActionPreference = "Stop"
 
-# Windows dialog support
-Add-Type -AssemblyName System.Windows.Forms
+$repositoryPath = $PSScriptRoot
+$branch = "master"
+$remote = "origin"
+$expectedRepository = "rahulranjan94/rag-engineering-lab"
+$device = "Laptop1:Bengaluru_system"
+$intervalSeconds = 120
 
-# Verify repository
-git rev-parse --is-inside-work-tree | Out-Null
-if ($LASTEXITCODE -ne 0) {
-    [System.Windows.Forms.MessageBox]::Show(
-        "This folder is not a Git repository.",
-        "GitHub Auto-Sync - Error",
-        "OK",
-        "Error"
-    ) | Out-Null
+# -------------------- Windows notifications ------------------
+
+try {
+    Add-Type -AssemblyName System.Windows.Forms -ErrorAction Stop
+}
+catch {
+    Write-Host "ERROR: Could not load Windows notification support."
     exit 1
 }
 
-# Verify branch
-$branch = git branch --show-current
-if ($branch -ne "master") {
-    Write-Host "Expected master branch, found: $branch"
+# -------------------- Git helper -----------------------------
+
+function Invoke-Git {
+    param([string[]]$GitArgs)
+
+    $output = & git @GitArgs 2>&1
+    $exitCode = $LASTEXITCODE
+
+    [PSCustomObject]@{
+        ExitCode = $exitCode
+        Output   = @($output | ForEach-Object { "$_" })
+    }
+}
+
+# -------------------- Startup validation ---------------------
+
+Set-Location -LiteralPath $repositoryPath
+
+$gitVersion = Invoke-Git -GitArgs @("--version")
+
+if ($gitVersion.ExitCode -ne 0) {
+    Write-Host "ERROR: Git is unavailable. Check your Git installation."
     exit 1
 }
 
-Write-Host "Auto-sync started for rag-engineering-lab."
-Write-Host "Device: Laptop1:Bengaluru_system"
-Write-Host "Branch: master | Interval: 120 seconds"
+$repoCheck = Invoke-Git -GitArgs @(
+    "rev-parse", "--is-inside-work-tree"
+)
+
+if ($repoCheck.ExitCode -ne 0 -or
+    ($repoCheck.Output -join "").Trim() -ne "true") {
+    Write-Host "ERROR: This folder is not a Git repository."
+    exit 1
+}
+
+$branchResult = Invoke-Git -GitArgs @(
+    "branch", "--show-current"
+)
+
+if ($branchResult.ExitCode -ne 0 -or
+    ($branchResult.Output -join "").Trim() -ne $branch) {
+    Write-Host "ERROR: Expected branch '$branch'."
+    exit 1
+}
+
+$remoteResult = Invoke-Git -GitArgs @(
+    "remote", "get-url", $remote
+)
+
+if ($remoteResult.ExitCode -ne 0) {
+    Write-Host "ERROR: Git remote '$remote' is not configured."
+    exit 1
+}
+
+$remoteUrl = ($remoteResult.Output -join "").Trim()
+
+if ($remoteUrl -notmatch
+    '(^|[:/])rahulranjan94/rag-engineering-lab(\.git)?$') {
+    Write-Host "ERROR: Unexpected GitHub repository URL:"
+    Write-Host $remoteUrl
+    exit 1
+}
+
+Write-Host ""
+Write-Host "GitHub auto-push started."
+Write-Host "Device: $device"
+Write-Host "Repository: $expectedRepository"
+Write-Host "Branch: $branch"
+Write-Host "Interval: $intervalSeconds seconds"
 Write-Host "Press Ctrl+C to stop."
+Write-Host ""
+
+# -------------------- Main loop ------------------------------
 
 while ($true) {
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    Write-Host "`n[$timestamp] Checking changes..."
+    try {
+        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
-    $commitCreated = $false
+        Write-Host ""
+        Write-Host "[$timestamp] Checking local changes..."
 
-    # Stage eligible new, modified, and deleted files
-    git add -A
+        # Do not operate during an unfinished merge or rebase.
+        $operationInProgress = $false
 
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "Staging failed. Check Git output."
-    }
-    else {
-        # Check for staged changes
-        git diff --cached --quiet
-        $diffResult = $LASTEXITCODE
+        foreach ($marker in @(
+            "MERGE_HEAD",
+            "CHERRY_PICK_HEAD",
+            "REVERT_HEAD",
+            "rebase-merge",
+            "rebase-apply"
+        )) {
+            $markerResult = Invoke-Git -GitArgs @(
+                "rev-parse", "--git-path", $marker
+            )
 
-        if ($diffResult -eq 1) {
-            git commit -m "Auto-sync: $timestamp"
+            if ($markerResult.ExitCode -eq 0) {
+                $markerPath = ($markerResult.Output -join "").Trim()
 
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "Commit created."
-                $commitCreated = $true
-            }
-            else {
-                Write-Host "Commit failed. Review the error."
+                if (-not [System.IO.Path]::IsPathRooted($markerPath)) {
+                    $markerPath = Join-Path $repositoryPath $markerPath
+                }
+
+                if (Test-Path -LiteralPath $markerPath) {
+                    Write-Host "Git operation in progress: $marker"
+                    $operationInProgress = $true
+                    break
+                }
             }
         }
-        elseif ($diffResult -eq 0) {
-            Write-Host "No changes to commit."
+
+        if ($operationInProgress) {
+            Write-Host "Skipping this cycle. Resolve the Git operation first."
+            continue
+        }
+
+        # Stage new, modified, and deleted files.
+        # Review .gitignore first to avoid staging secrets or local files.
+        $stage = Invoke-Git -GitArgs @("add", "-A")
+
+        if ($stage.ExitCode -ne 0) {
+            Write-Host "STAGING FAILED:"
+            $stage.Output | ForEach-Object { Write-Host $_ }
+            continue
+        }
+
+        # Determine whether a new commit is required.
+        $diff = Invoke-Git -GitArgs @(
+            "diff", "--cached", "--quiet"
+        )
+
+        $commitCreated = $false
+
+        if ($diff.ExitCode -eq 1) {
+            $commit = Invoke-Git -GitArgs @(
+                "commit", "-m", "Auto-sync: $timestamp"
+            )
+
+            if ($commit.ExitCode -ne 0) {
+                Write-Host "COMMIT FAILED:"
+                $commit.Output | ForEach-Object { Write-Host $_ }
+                continue
+            }
+
+            $commitCreated = $true
+            Write-Host "New commit created."
+        }
+        elseif ($diff.ExitCode -eq 0) {
+            Write-Host "No new changes to commit."
         }
         else {
-            Write-Host "Unable to check staged changes."
+            Write-Host "Could not check staged changes. Skipping push."
+            continue
         }
 
-        # Push local commits to GitHub
-        # Capture and display Git's output
-        $pushOutput = git push origin master 2>&1
-        $pushExitCode = $LASTEXITCODE
+        # Push even when no new commit was created:
+        # this retries commits left behind by a previous failed push.
+        $push = Invoke-Git -GitArgs @(
+            "push", $remote, $branch
+        )
 
-        $pushOutput | ForEach-Object {
-            Write-Host $_
+        $push.Output | ForEach-Object { Write-Host $_ }
+
+        if ($push.ExitCode -ne 0) {
+            Write-Host "PUSH FAILED. Will retry during the next cycle."
+            continue
         }
 
-        if ($pushExitCode -eq 0) {
-            Write-Host "GitHub push successful."
+        Write-Host "GitHub push successful."
 
-            # Show dialog only when a new commit was created
-            # and the push succeeded
-            if ($commitCreated) {
-                $message = @"
+        # Notify only when this cycle created and pushed a commit.
+        if ($commitCreated) {
+            $successTime = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+
+            $message = @"
 Your code has been pushed successfully!
 
-From Device: Laptop1:Rahul@Bengaluru_system
+From Device: $device
 
 To GitHub Repository:
-rahulranjan94/rag-engineering-lab
+$expectedRepository
 
-Branch: master
+Branch: $branch
 
-Time: $timestamp
+Time: $successTime
 "@
 
+            try {
                 [System.Windows.Forms.MessageBox]::Show(
                     $message,
                     "GitHub Auto-Sync - Upload Successful",
-                    "OK",
-                    "Information"
+                    [System.Windows.Forms.MessageBoxButtons]::OK,
+                    [System.Windows.Forms.MessageBoxIcon]::Information
                 ) | Out-Null
             }
-        }
-        else {
-            Write-Host "Push failed. Check the error above."
+            catch {
+                Write-Host "Push succeeded, but the notification failed."
+                Write-Host $_.Exception.Message
+            }
         }
     }
-
-    Start-Sleep -Seconds 120
+    catch {
+        Write-Host "UNEXPECTED ERROR: $($_.Exception.Message)"
+        Write-Host "The script will retry during the next cycle."
+    }
+    finally {
+        Start-Sleep -Seconds $intervalSeconds
+    }
 }
