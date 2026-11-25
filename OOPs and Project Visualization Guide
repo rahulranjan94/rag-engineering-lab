@@ -18,3 +18,5 @@ Check that it works
 3.	A visualizer window should open. Drag it next to VS Code or onto a second screen. You should see the Program output (live) box, then the class diagram.
 To open the lessons, press Ctrl+Shift+P and run OOP Visualizer: Open Lessons (Learn).
 
+=====================================================================
+code --install-extension python-project-visualizer-0.4.0.vsix
