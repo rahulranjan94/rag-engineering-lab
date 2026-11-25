@@ -6,7 +6,7 @@ Install the extension
 1.	Download python-oop-visualizer-0.3.0.vsix from the file card above. It's the .vsix file, not the zip.
 2.	In VS Code, open the Extensions view (Ctrl+Shift+X, or Cmd+Shift+X on Mac).
 3.	Click the … menu at the top right of that panel and choose Install from VSIX….
-4.	Pick the downloaded .vsix file. Restart VS Code if it asks.
+4.	Pick the downloaded .vsix file. Restart VS Code if it asks.(Press => Ctrl+Shift+P and then select Developer: Reload Window )
 
 Alternatively, run this in a terminal from the folder containing the file(NOTE:please place the downloaded filei.e."python-oop-visualizer-0.3.0.vsix" inside the project folder before executing the terminal command):
 code --install-extension python-oop-visualizer-0.3.0.vsix
