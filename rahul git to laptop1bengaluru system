@@ -1,5 +1,20 @@
-test file
-my name is rahul ranjan . bgp
-Rahul is a good boy.
-Godspeed. God bless you .
-Puja is a good girl
+Before you start
+1.	VS Code 1.85 or newer. Check this under Help → About.
+2.	Python 3.9 or newer. Open a terminal and run python --version (on Mac or Linux, python3 --version). If it isn't installed, get it from python.org. On Windows, tick "Add Python to PATH" during setup.
+
+Install the extension
+1.	Download python-oop-visualizer-0.3.0.vsix from the file card above. It's the .vsix file, not the zip.
+2.	In VS Code, open the Extensions view (Ctrl+Shift+X, or Cmd+Shift+X on Mac).
+3.	Click the … menu at the top right of that panel and choose Install from VSIX….
+4.	Pick the downloaded .vsix file. Restart VS Code if it asks.
+
+Alternatively, run this in a terminal from the folder containing the file(NOTE:please place the downloaded filei.e."python-oop-visualizer-0.3.0.vsix" inside the project folder before executing the terminal command):
+code --install-extension python-oop-visualizer-0.3.0.vsix
+
+If you installed 0.2.0 before, uninstall it first (Extensions → "Python OOP Visualizer" → Uninstall).
+Check that it works
+1.	Open any .py file. You can use examples/01_student.py from the zip.
+2.	Press Ctrl+Alt+V (Mac: Cmd+Alt+V).
+3.	A visualizer window should open. Drag it next to VS Code or onto a second screen. You should see the Program output (live) box, then the class diagram.
+To open the lessons, press Ctrl+Shift+P and run OOP Visualizer: Open Lessons (Learn).
+
