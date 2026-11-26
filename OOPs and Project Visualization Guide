@@ -25,3 +25,5 @@ code --install-extension python-project-visualizer-0.4.0.vsix
 Hugging_Face User ID and Password Details:
 user_name: rahulranjan.shree@gmail.com
 password : Rranjan@1995
+
+MODEL 1 USED: model_name="sentence-transformers/all-MiniLM-L6-v2"
