@@ -1,6 +1,6 @@
 # ============================================================
 # RAG Engineering Lab - GitHub Auto-Sync (Push + Pull in one script)
-# File name : Start-RagLabGitHubSync.ps1   (formerly auto_sync.ps1)
+# File name : Start-RagLabGitHubSecret_Sync.ps1   (formerly auto_sync.ps1)
 #
 # Every cycle (default 2 minutes) it runs these steps in order:
 #   1. COMMIT  local new / modified / renamed / deleted files
