@@ -1,0 +1,7 @@
+# Added by Start-RagLabGitHubSync.ps1 - these files are stored ENCRYPTED (git-crypt)
+.env filter=git-crypt diff=git-crypt
+.env.* filter=git-crypt diff=git-crypt
+.env.example !filter !diff
+.env.sample !filter !diff
+.env.template !filter !diff
+secrets/** filter=git-crypt diff=git-crypt

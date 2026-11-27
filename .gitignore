@@ -1,0 +1,5 @@
+# Added by Start-RagLabGitHubSync.ps1 - keeps secrets out of Git
+*.pem
+*.key
+*.pfx
+*.p12

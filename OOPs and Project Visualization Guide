@@ -31,3 +31,5 @@ MODEL 1 USED: model_name="sentence-transformers/all-MiniLM-L6-v2"
 =====================================================================
 Open_AI_API_Key
 user_name: rahulranjan.shree@gmail.com
+API_Key_Name_1 : rag_learnings2026
+API_key_1 : YOUR_OPENAI_API_KEY
